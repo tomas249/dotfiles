@@ -40,7 +40,7 @@ end
 
 beautiful.init(gears.filesystem.get_configuration_dir() .. "theme.lua")
 
-terminal = "x-terminal-emulator"
+terminal = "alacritty"
 
 modkey = "Mod4"
 
@@ -227,9 +227,9 @@ globalkeys = gears.table.join(
     -- awful.key({ }, "XF86AudioPlay", function () awful.util.spawn("mpc toggle") end),
     -- awful.key({ }, "XF86AudioNext", function () awful.util.spawn("mpc next") end),
     -- awful.key({ }, "XF86AudioPrev", function () awful.util.spawn("mpc prev") end),
-    awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer sset Master 5%+") end),
-    awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer sset Master 5%-") end),
-    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer sset Master toggle") end)
+    awful.key({ }, "XF86AudioRaiseVolume", function () awful.spawn.with_shell("amixer sset Master 5%+") end),
+    awful.key({ }, "XF86AudioLowerVolume", function () awful.spawn.with_shell("amixer sset Master 5%-") end),
+    awful.key({ }, "XF86AudioMute", function () awful.spawn.with_shell("amixer sset Master toggle") end)
 )
 
 clientkeys = gears.table.join(
@@ -365,8 +365,12 @@ awful.rules.rules = {
           "AlarmWindow",  -- Thunderbird's calendar.
           "ConfigManager",  -- Thunderbird's about:config.
           "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools.
+          "GtkFileChooserDialog" -- File chooser
         }
-      }, properties = { floating = true }},
+      }, properties = {
+        floating = true,
+        placement = awful.placement.centered
+    }},
 }
 
 client.connect_signal("manage", function (c)
@@ -385,3 +389,8 @@ end)
 
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
+
+awful.spawn.with_shell("sleep 1; /usr/bin/imwheel -k --buttons '4 5'")
+
+local screenlayouts = gears.filesystem.get_configuration_dir() .. "screenlayouts/triple.sh"
+awful.spawn.with_shell("sh " .. screenlayouts)

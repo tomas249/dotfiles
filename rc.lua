@@ -365,8 +365,12 @@ awful.rules.rules = {
           "AlarmWindow",  -- Thunderbird's calendar.
           "ConfigManager",  -- Thunderbird's about:config.
           "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools.
+          "GtkFileChooserDialog" -- File chooser
         }
-      }, properties = { floating = true }},
+      }, properties = {
+        floating = true,
+        placement = awful.placement.centered
+    }},
 }
 
 client.connect_signal("manage", function (c)

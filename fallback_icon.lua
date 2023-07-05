@@ -2,11 +2,13 @@ local cairo = require("lgi").cairo
 local gears = require("gears")
 local naughty = require("naughty")
 
+-- cp /var/lib/flatpak/app/com.slack.Slack/current/active/files/share/icons/hicolor/512x512/apps/com.slack.Slack.png .config/awesome/fallback_icons
 local ICONS_PATH = gears.filesystem.get_configuration_dir() .. "fallback_icons/"
 local FALLBACK_ICONS = {
     DEFAULT = 'default.png',
     spotify = 'Spotify.png',
     obsidian = 'obsidian.png',
+    slack = 'slack.png',
 }
 
 local function notify_error(title, text)
