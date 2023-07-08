@@ -12,6 +12,7 @@ require("awful.hotkeys_popup.keys")
 
 -- My imports
 local fancy_taglist = require("fancy_taglist")
+local keyboard = require("keyboard")
 local render_fallback_icon = require("fallback_icon")
 
 local calendar_widget = require("awesome-wm-widgets.calendar-widget.calendar")
@@ -45,14 +46,12 @@ terminal = "alacritty"
 modkey = "Mod4"
 
 awful.layout.layouts = {
-    awful.layout.suit.tile,
     awful.layout.suit.max,
+    awful.layout.suit.tile,
     awful.layout.suit.floating,
 }
 
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
-
-mykeyboardlayout = awful.widget.keyboardlayout()
 
 local cw = calendar_widget({
     theme = 'nord',
@@ -167,7 +166,7 @@ awful.screen.connect_for_each_screen(function(s)
         s.mytasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
-            mykeyboardlayout,
+            keyboard.widget,
             wibox.widget.systray(),
             volume_widget(),
             mytextclock,
@@ -366,6 +365,9 @@ awful.rules.rules = {
           "ConfigManager",  -- Thunderbird's about:config.
           "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools.
           "GtkFileChooserDialog" -- File chooser
+        },
+        type = {
+          "dialog"
         }
       }, properties = {
         floating = true,
