@@ -1,0 +1,163 @@
+local shortcuts = {}
+
+---@class AppSwitcher
+---@field apps table<string, App>
+---@field hotkeys table<string, boolean>
+---@field len integer
+---@field visible boolean
+---@field canvas hs.canvas | nil
+---@field dismissBinding hs.hotkey
+---@field dismissTimer hs.timer
+local AppSwitcher = {
+  hotkeys = {},
+  apps = {},
+  len = 0,
+  visible = false,
+}
+
+function AppSwitcher:new(o)
+  o = o or {}
+  setmetatable(o, self)
+  self.__index = self
+  return o
+end
+
+function AppSwitcher:show()
+  local frame = hs.screen.mainScreen():frame()
+  local itemWidth = 110
+  local width = 700
+  local height = 50
+  self.canvas = hs.canvas.new {
+    x = 10,
+    y = frame.h - height - 10,
+    h = height,
+    w = width
+  }
+
+  if (self.canvas == nil) then
+    error("AppSwitcher: Could not create h.canvas")
+  end
+
+  self.canvas:appendElements({
+    type = "rectangle",
+    action = "fill",
+    fillColor = {hex = "#000000", alpha = 0.8},
+    roundedRectRadii = {xRadius = 10, yRadius = 10},
+    frame = {x = 0, y = 0, h = height, w = width},
+  })
+  for i = 1, 9 do
+    local window = shortcuts[i]
+    if window ~= nil then
+      local app = window:application()
+      local id = app:bundleID()
+      local icon
+      if id == nil then
+        icon = hs.image.imageFromName("ApplicationIcon")
+      else
+        icon = hs.image.imageFromAppBundle(id)
+        if icon == nil then
+          icon = hs.image.imageFromName("ApplicationIcon")
+        end
+      end
+
+      --[[
+      _[20]_[25]
+      10   5
+      --]]
+      local isHidden = app:isHidden()
+      local colorHex = "#FFFFFF"
+      local imageAlpha = 1
+      if isHidden then
+        colorHex = "#6D6D6D"
+        imageAlpha = 0.5
+      end
+
+      self.canvas:appendElements({
+        {
+          type = "text",
+          text = i .. ": ",
+          textSize = 20,
+          textColor = {hex = colorHex},
+          frame = {
+            x = 10 + (i - 1) * 60,
+            y = 0,
+            h = 25,
+            w = 20
+          }
+        },
+        {
+          type = "image",
+          image = icon,
+          imageAlpha = imageAlpha,
+          frame = {
+            x = 10 + (i - 1) * 60 + 20,
+            y = 0,
+            h = 25,
+            w = 25
+          }
+        }
+      })
+    end
+
+  end
+  self.canvas:show()
+end
+
+function AppSwitcher:hide()
+  self.canvas:delete()
+end
+
+local as = AppSwitcher:new {}
+
+hs.hotkey.bind(
+  "option",
+  "s",
+  function()
+    as:show()
+  end
+)
+
+hs.hotkey.bind(
+  "option",
+  "a",
+  function()
+    as:hide()
+  end
+)
+
+-- Assign shortcut
+for i = 1, 9 do
+  hs.hotkey.bind({"alt", "shift"}, tostring(i), function()
+    local window = hs.window.focusedWindow()
+    shortcuts[i] = window
+    as:hide()
+    as:show()
+
+    local appWatcher = hs.application.watcher.new(applicationWatcher)
+    appWatcher:start()
+  end)
+
+  hs.hotkey.bind({"alt"}, tostring(i), function()
+    local window = shortcuts[i]
+    if window == nil then
+      return
+    end
+
+    window:application():setFrontmost()
+    -- as:hide()
+    -- as:show()
+  end)
+end
+
+hs.hotkey.bind({"alt"}, "Q", function()
+  hs.window.focusedWindow():application():hide()
+  as:hide()
+  as:show()
+end)
+
+hs.hotkey.bind({"alt"}, "D", function()
+  for k, v in pairs(shortcuts) do
+    print(k, v:title())
+  end
+  print("----")
+end)
